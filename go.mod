@@ -1,4 +1,4 @@
-module play.202105301829
+module example_reedsolomon
 
 go 1.16
 

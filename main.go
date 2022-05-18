@@ -10,6 +10,7 @@ import (
 	"github.com/klauspost/reedsolomon"
 )
 
+// 程序的参数
 var (
 	decode     = flag.Bool("decode", false, "decode or not")
 	fileName   = flag.String("file", "", "file to encode/decode")
@@ -21,13 +22,16 @@ var (
 // ./main --file=./file//testfile_recover.txt -encode_path=./encode --decode
 
 func main() {
-	fmt.Println("Hello, World!")
+
+	fmt.Println("Hello, reedsolomon!")
+	// 把参数转化为main内的变量
 	flag.Parse()
 
 	if fileName == nil || encodePath == nil {
 		panic("need filename and encode path")
 	}
 
+	// 定义reedsolomon的编码器
 	encoder, err := reedsolomon.New(5, 3)
 	if err != nil {
 		panic(err)
