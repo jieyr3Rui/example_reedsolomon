@@ -75,6 +75,7 @@ func main() {
 	enc, err := reedsolomon.NewStream(*dataShards, *parShards)
 	checkErr(err)
 
+	fmt.Println("\nTry to open shards ...")
 	// Open the inputs
 	shards, size, err := openInput(*dataShards, *parShards, fname)
 	checkErr(err)
@@ -82,14 +83,15 @@ func main() {
 	// Verify the shards
 	ok, err := enc.Verify(shards)
 	if ok {
-		fmt.Println("No reconstruction needed")
+		fmt.Println("\nNo reconstruction needed")
 	} else {
-		fmt.Println("Verification failed. Reconstructing data")
+		fmt.Println("\nVerification failed. Reconstructing data ...")
 		shards, size, err = openInput(*dataShards, *parShards, fname)
 		checkErr(err)
 		// Create out destination writers
 		out := make([]io.Writer, len(shards))
 		for i := range out {
+			// 如果这个shards没有就造一个
 			if shards[i] == nil {
 				outfn := fmt.Sprintf("%s.%d", fname, i)
 				fmt.Println("Creating", outfn)
@@ -97,6 +99,7 @@ func main() {
 				checkErr(err)
 			}
 		}
+		// Reconstruct will recreate the missing shards if possible.
 		err = enc.Reconstruct(shards, out)
 		if err != nil {
 			fmt.Println("Reconstruct failed -", err)
@@ -109,13 +112,18 @@ func main() {
 				checkErr(err)
 			}
 		}
+		fmt.Println("Reconstruct finished!")
+
+		// 验证shards
+		fmt.Println("\nVerifiing shards ...")
 		shards, size, err = openInput(*dataShards, *parShards, fname)
 		ok, err = enc.Verify(shards)
 		if !ok {
-			fmt.Println("Verification failed after reconstruction, data likely corrupted:", err)
+			fmt.Println("\nVerification failed after reconstruction, data likely corrupted:", err)
 			os.Exit(1)
 		}
 		checkErr(err)
+		fmt.Println("Verification finished!")
 	}
 
 	// Join the shards and write them
@@ -131,7 +139,7 @@ func main() {
 	}
 	outfn := filepath.Join(dir, file)
 
-	fmt.Println("Writing data to", outfn)
+	fmt.Println("\nWriting data to", outfn)
 	f, err := os.Create(outfn)
 	checkErr(err)
 
@@ -143,6 +151,9 @@ func main() {
 	checkErr(err)
 }
 
+/*
+	尝试打开shards
+*/
 func openInput(dataShards, parShards int, fname string) (r []io.Reader, size int64, err error) {
 	// Create shards and load the data.
 	shards := make([]io.Reader, dataShards+parShards)

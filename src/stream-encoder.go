@@ -64,12 +64,6 @@ func init() {
 func main() {
 	// Parse command line parameters.
 	flag.Parse()
-	// args := flag.Args()
-	// if len(args) != 1 {
-	// 	fmt.Fprintf(os.Stderr, "Error: No input filename given\n")
-	// 	flag.Usage()
-	// 	os.Exit(1)
-	// }
 	if (*dataShards + *parShards) > 256 {
 		fmt.Fprintf(os.Stderr, "Error: sum of data and parity shards cannot exceed 256\n")
 		os.Exit(1)
@@ -92,6 +86,7 @@ func main() {
 	out := make([]*os.File, shards)
 
 	// Create the resulting files.
+	fmt.Println("\nCreate the resulting files ...")
 	dir, file := filepath.Split(fname)
 	if *outDir != "" {
 		dir = *outDir
@@ -113,6 +108,8 @@ func main() {
 	checkErr(err)
 
 	// Close and re-open the files.
+	// 关闭并重新打开文件
+	// input 0~3
 	input := make([]io.Reader, *dataShards)
 
 	for i := range data {
@@ -124,6 +121,7 @@ func main() {
 	}
 
 	// Create parity output writers
+	// parity 4 5
 	parity := make([]io.Writer, *parShards)
 	for i := range parity {
 		parity[i] = out[*dataShards+i]
@@ -133,7 +131,7 @@ func main() {
 	// Encode parity
 	err = enc.Encode(input, parity)
 	checkErr(err)
-	fmt.Printf("File split into %d data + %d parity shards.\n", *dataShards, *parShards)
+	fmt.Printf("\nFile split into %d data + %d parity shards.\n", *dataShards, *parShards)
 
 }
 
