@@ -62,13 +62,6 @@ func init() {
 func main() {
 	// Parse flags
 	flag.Parse()
-	// args := flag.Args()
-	// if len(args) != 1 {
-	// 	fmt.Fprintf(os.Stderr, "Error: No filenames given\n")
-	// 	flag.Usage()
-	// 	os.Exit(1)
-	// }
-	// fname := args[0]
 	fname := *inFile
 
 	// Create matrix
